@@ -6,6 +6,9 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/gosoon/code-generator/cmd/generators/controller"
+	"github.com/gosoon/code-generator/cmd/generators/service"
+
 	"k8s.io/code-generator/cmd/client-gen/generators/util"
 	clientgentypes "k8s.io/code-generator/cmd/client-gen/types"
 	"k8s.io/gengo/args"
@@ -18,8 +21,8 @@ import (
 // NameSystems returns the name system used by the generators in this package.
 func NameSystems() namer.NameSystems {
 	return namer.NameSystems{
-		"public":             namer.NewPublicNamer(0),    // types
-		"private":            namer.NewPrivateNamer(0),   // Types
+		"public":             namer.NewPublicNamer(0),
+		"private":            namer.NewPrivateNamer(0),
 		"raw":                namer.NewRawNamer("", nil), // package.Types
 		"publicPlural":       namer.NewPublicPluralNamer(nil),
 		"allLowercasePlural": namer.NewAllLowercasePluralNamer(nil),
@@ -41,36 +44,30 @@ func DefaultNameSystem() string {
 	return "public"
 }
 
-//func packageForController(customArgs *clientgenargs.CustomArgs, clientsetPackage string, groupGoNames map[clientgentypes.GroupVersion]string, boilerplate []byte) generator.Package {
-//return &generator.DefaultPackage{
-//PackageName: customArgs.ClientsetName,
-//PackagePath: clientsetPackage,
-//HeaderText:  boilerplate,
-//PackageDocumentation: []byte(
-//`// This package has the automatically generated clientset.
-//`),
-//// GeneratorFunc returns a list of generators. Each generator generates a
-//// single file.
-//GeneratorFunc: func(c *generator.Context) (generators []generator.Generator) {
-//generators = []generator.Generator{
-//// Always generate a "doc.go" file.
-//generator.DefaultGen{OptionalName: "doc"},
-
-//&genController{
-//DefaultGen: generator.DefaultGen{
-//OptionalName: "controller",
-//},
-//groups:           customArgs.Groups,
-//groupGoNames:     groupGoNames,
-//clientsetPackage: clientsetPackage,
-//outputPackage:    customArgs.ClientsetName,
-//imports:          generator.NewImportTracker(),
-//},
-//}
-//return generators
-//},
-//}
-//}
+func packageForServer(serverPackagePath string, boilerplate []byte) generator.Package {
+	return &generator.DefaultPackage{
+		PackageName: "server",
+		PackagePath: serverPackagePath,
+		HeaderText:  boilerplate,
+		PackageDocumentation: []byte(
+			`// This package has the automatically generated clientset.
+`),
+		// GeneratorFunc returns a list of generators. Each generator generates a
+		// single file.
+		GeneratorFunc: func(c *generator.Context) (generators []generator.Generator) {
+			generators = []generator.Generator{
+				generator.DefaultGen{OptionalName: "doc"},
+				&genServer{
+					DefaultGen: generator.DefaultGen{
+						OptionalName: "server",
+					},
+					imports: generator.NewImportTracker(),
+				},
+			}
+			return generators
+		},
+	}
+}
 
 // Packages makes the client package definition.
 func Packages(context *generator.Context, arguments *args.GeneratorArgs) generator.Packages {
@@ -80,7 +77,7 @@ func Packages(context *generator.Context, arguments *args.GeneratorArgs) generat
 		klog.Fatalf("Failed loading boilerplate: %v", err)
 	}
 
-	var packageList generator.Packages
+	var packageList []generator.Package
 	for _, inputDir := range arguments.InputDirs {
 		// 2.Package returns the Package for the given path.
 		// package save all types and tags
@@ -132,6 +129,7 @@ func Packages(context *generator.Context, arguments *args.GeneratorArgs) generat
 		// 6.filter have GenTags types
 		var typesToGenerate []*types.Type
 		for _, t := range p.Types {
+			fmt.Printf("----------> t:%+v\n", t)
 			// 7.  t.SecondClosestCommentLines is tags, t.CommentLines is comments
 			fmt.Printf("tags:%+v  %+v\n", t.SecondClosestCommentLines, t.CommentLines)
 			tags := util.MustParseClientGenTags(append(t.SecondClosestCommentLines, t.CommentLines...))
@@ -154,43 +152,20 @@ func Packages(context *generator.Context, arguments *args.GeneratorArgs) generat
 		// github.com/gosoon/code-generator ecs v1
 		//packagePath := filepath.Join(arguments.OutputPackagePath, groupPackageName, strings.ToLower(gv.Version.NonEmpty()))
 		packagePath := filepath.Join(arguments.OutputPackagePath, "server/controller")
+		serverPackagePath := filepath.Join(arguments.OutputPackagePath, "server")
+		servicePackagePath := filepath.Join(arguments.OutputPackagePath, "server/service")
+
+		packageList = append(packageList, packageForServer(serverPackagePath, boilerplate))
+		packageList = append(packageList, controller.PackageForControllerMeta(packagePath, arguments, boilerplate))
+		packageList = append(packageList, service.PackageForService(servicePackagePath, boilerplate))
 
 		// 为每个 types 生成一个目录以及对应的 CRUD 方法
 		for _, t := range typesToGenerate {
-			packageName := strings.ToLower(t.Name.Name)
-
-			defaultPkg := &generator.DefaultPackage{
-				PackageName: packageName,
-				PackagePath: filepath.Join(packagePath, packageName), // output path, "pkg/server/controller"
-				HeaderText:  boilerplate,                             // Licensed
-				GeneratorFunc: func(c *generator.Context) (generators []generator.Generator) {
-					fmt.Printf("----------strings.ToLower(t.Name.Name):%+v \n", strings.ToLower(t.Name.Name))
-					fmt.Printf("arguments.OutputPackagePath:%+v\n", arguments.OutputPackagePath)
-					fmt.Printf("gv:%+v \n", gv)
-					fmt.Printf("internalGVPkg:%+v\n", internalGVPkg)
-					fmt.Printf("t:%+v\n", t)
-					fmt.Printf("generator.NewImportTracker():%+v\n", generator.NewImportTracker())
-					fmt.Printf("objectMeta:%+v\n", objectMeta)
-
-					generators = append(generators, &genController{
-						DefaultGen: generator.DefaultGen{
-							OptionalName: packageName, // kubernetescluster
-						},
-						outputPackage: arguments.OutputPackagePath, //github.com/gosoon/code-generator
-						//groupVersion:   gv,                          // ecs  v1
-						//internalGVPkg:  internalGVPkg,               // github.com/gosoon/test/pkg/apis/ecs
-						typeToGenerate: t, // github.com/gosoon/test/pkg/apis/ecs/v1.KubernetesCluster
-						imports:        generator.NewImportTracker(),
-						objectMeta:     objectMeta, // k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta
-					})
-					return generators
-				},
-			}
-			packageList = append(packageList, defaultPkg)
+			packageList = append(packageList, controller.PackageForTypesController(packagePath,
+				arguments, t, boilerplate))
 		}
-
 	}
-	return packageList
+	return generator.Packages(packageList)
 }
 
 // objectMetaForPackage returns the type of ObjectMeta used by package p.
