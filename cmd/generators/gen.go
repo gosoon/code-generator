@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/gosoon/code-generator/cmd/generators/controller"
+	"github.com/gosoon/code-generator/cmd/generators/middleware"
 	"github.com/gosoon/code-generator/cmd/generators/service"
 	"github.com/gosoon/code-generator/pkg/args"
 	"github.com/gosoon/code-generator/pkg/tags"
@@ -129,11 +130,14 @@ func Packages(context *generator.Context, arguments *args.GeneratorArgs) generat
 		packagePath := filepath.Join(arguments.OutputPackagePath, "server/controller")
 		serverPackagePath := filepath.Join(arguments.OutputPackagePath, "server")
 		servicePackagePath := filepath.Join(arguments.OutputPackagePath, "server/service")
+		middlewarePackagePath := filepath.Join(arguments.OutputPackagePath, "server/middleware")
 
 		packageList = append(packageList, packageForServer(serverPackagePath, boilerplate))
 		packageList = append(packageList, controller.PackageForControllerMeta(packagePath, arguments, boilerplate))
 		packageList = append(packageList, service.PackageForService(servicePackagePath, arguments, boilerplate))
 
+		// middleware
+		packageList = append(packageList, middleware.PackageForMiddleware(middlewarePackagePath, arguments, boilerplate))
 		// 为每个 types 生成一个目录以及对应的 CRUD 方法
 		for _, t := range typesToGenerate {
 			packageList = append(packageList, controller.PackageForTypesController(packagePath,
