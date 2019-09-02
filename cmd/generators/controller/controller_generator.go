@@ -4,7 +4,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"k8s.io/gengo/args"
+	"github.com/gosoon/code-generator/pkg/args"
+
+	//"k8s.io/gengo/args"
 	"k8s.io/gengo/generator"
 	"k8s.io/gengo/types"
 )
@@ -59,6 +61,7 @@ func PackageForTypesController(packagePath string, arguments *args.GeneratorArgs
 					DefaultGen: generator.DefaultGen{
 						OptionalName: packageName, // filename : kubernetescluster.go
 					},
+					inputPackages: arguments.InputDirs,
 					outputPackage: arguments.OutputPackagePath, //github.com/gosoon/code-generator
 					//groupVersion:   gv,                          // ecs  v1
 					//internalGVPkg:  internalGVPkg,               // github.com/gosoon/test/pkg/apis/ecs

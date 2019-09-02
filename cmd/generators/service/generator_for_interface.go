@@ -2,7 +2,6 @@ package service
 
 import (
 	"io"
-	"path/filepath"
 
 	clientgentypes "k8s.io/code-generator/cmd/client-gen/types"
 	"k8s.io/gengo/generator"
@@ -17,6 +16,7 @@ type genServiceInterface struct {
 	groups           []clientgentypes.GroupVersions
 	groupGoNames     map[clientgentypes.GroupVersion]string
 	clientsetPackage string
+	inputPackages    []string
 	outputPackage    string
 	imports          namer.ImportTracker
 	serviceGenerated bool
@@ -42,7 +42,9 @@ func (g *genServiceInterface) Filter(c *generator.Context, t *types.Type) bool {
 
 func (g *genServiceInterface) Imports(c *generator.Context) (imports []string) {
 	imports = append(imports, g.imports.ImportLines()...)
-	imports = append(imports, filepath.Join(g.outputPackage, "pkg/types"))
+	for _, pkg := range g.inputPackages {
+		imports = append(imports, pkg)
+	}
 	return
 }
 
@@ -62,27 +64,32 @@ func (g *genServiceInterface) GenerateType(c *generator.Context, t *types.Type, 
 }
 
 var typeOptionsStruct = `
+// Options contains the config by service
 type Options struct {
-	//KubeClientset              kubernetes.Interface
+	KubeClientset kubernetes.Interface
 }
 `
 
 var typeServiceStruct = `
+// service implements the Service interface.
 type service struct {
 	opt *Options
 }
 `
 
 var newServiceTmpl = `
+// New is create a service object.
 func New(opt *Options) Interface {
 	return &service{opt: opt}
 }
 `
 
 var serviceInterfaceTmpl = `
+// Interface is definition service all method.
 type Interface interface {
-	// cluster
-	CreateCluster(ctx context.Context, region string, namespace string, name string, clusterInfo *types.EcsClient) error
-	DeleteCluster(ctx context.Context, region string, namespace string, name string, clusterInfo *types.EcsClient) error
+	Create$.type|public$(ctx context.Context, $.type|private$Obj *types.$.type|public$) error
+	Get$.type|public$(ctx context.Context, name string) error
+	Update$.type|public$(ctx context.Context, $.type|private$Obj *types.$.type|public$) error
+	Delete$.type|public$(ctx context.Context, name string) error
 }
 `

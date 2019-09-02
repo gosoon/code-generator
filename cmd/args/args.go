@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"path"
 
+	"github.com/gosoon/code-generator/pkg/args"
+
 	"github.com/spf13/pflag"
 	codegenutil "k8s.io/code-generator/pkg/util"
-	"k8s.io/gengo/args"
 )
 
 // CustomArgs is used by the gengo framework to pass args specific to this generator.

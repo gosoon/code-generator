@@ -17,6 +17,7 @@ type genTypesController struct {
 	groups             []clientgentypes.GroupVersions
 	groupGoNames       map[clientgentypes.GroupVersion]string
 	clientsetPackage   string
+	inputPackages      []string
 	outputPackage      string
 	imports            namer.ImportTracker
 	clientsetGenerated bool
@@ -41,6 +42,9 @@ func (g *genTypesController) Filter(c *generator.Context, t *types.Type) bool {
 func (g *genTypesController) Imports(c *generator.Context) (imports []string) {
 	imports = append(imports, g.imports.ImportLines()...)
 	imports = append(imports, filepath.Join(g.outputPackage, "server/controller"))
+	for _, pkg := range g.inputPackages {
+		imports = append(imports, pkg)
+	}
 	imports = append(imports, "github.com/gorilla/mux")
 	return
 }
@@ -65,12 +69,14 @@ func (g *genTypesController) GenerateType(c *generator.Context, t *types.Type, w
 }
 
 var typeObjectStruct = `
+// $.type|private$ implements the controller interface.
 type $.type|private$ struct {
 	opt *controller.Options
 }
 `
 
 var newObject = `
+// New is create a $.type|private$ object.
 func New(opt *controller.Options) controller.Controller {
 	return &$.type|private${opt: opt}
 }
@@ -169,7 +175,7 @@ func (c *$.type|private$) delete$.type|public$(w http.ResponseWriter, r *http.Re
 	}
 
 	// delete object
-	err = c.opt.Service.Delete$.type|public$(r.Context(), $.type|private$Obj.ID)
+	err = c.opt.Service.Delete$.type|public$(r.Context(), $.type|private$Obj.Name)
 	if err != nil {
 		controller.BadRequest(w, r, err)
 		return

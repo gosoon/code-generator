@@ -21,9 +21,8 @@ type genServer struct {
 	outputPackage       string
 	imports             namer.ImportTracker
 	controllerGenerated bool
-
-	typeToGenerate *types.Type
-	objectMeta     *types.Type
+	typeToGenerate      *types.Type
+	objectMeta          *types.Type
 }
 
 var _ generator.Generator = &genServer{}
@@ -47,13 +46,6 @@ func (g *genServer) Imports(c *generator.Context) (imports []string) {
 	imports = append(imports, fmt.Sprintf("ctrl \"%v\"", filepath.Join(g.outputPackage, "server/controller")))
 	imports = append(imports, "github.com/gorilla/mux")
 	return
-
-	//ctrl "github.com/gosoon/kubernetes-operator/pkg/server/controller"
-	//"github.com/gosoon/kubernetes-operator/pkg/server/controller/cluster"
-	//"github.com/gosoon/kubernetes-operator/pkg/server/service"
-
-	//"github.com/gorilla/mux"
-
 }
 
 func (g *genServer) GenerateType(c *generator.Context, t *types.Type, w io.Writer) error {
@@ -74,6 +66,7 @@ func (g *genServer) GenerateType(c *generator.Context, t *types.Type, w io.Write
 }
 
 var typeServerInterface = `
+// Server helps start a http server.
 type Server interface {
 	http.Handler
 	ListenAndServe() error
@@ -81,6 +74,7 @@ type Server interface {
 `
 
 var typeOptionsStruct = `
+// Options contains the config required by server
 type Options struct {
 	CtrlOptions *ctrl.Options
 	ListenAddr  string
@@ -88,6 +82,7 @@ type Options struct {
 `
 
 var typeServerStruct = `
+// server implements the Server interface.
 type server struct {
 	opt    Options
 	router *mux.Router
@@ -95,17 +90,18 @@ type server struct {
 `
 
 var serverNewFunc = `
+// New is create a server object.
 func New(opt Options) Server {
 	// init service
 	options := &service.Options{
 		//KubernetesClusterClientset: opt.CtrlOptions.KubernetesClusterClientset,
-		//KubeClientset:              opt.CtrlOptions.KubeClientset,
+		KubeClientset:              opt.CtrlOptions.KubeClientset,
 	}
 
 	opt.CtrlOptions.Service = service.New(options)
 
 	router := mux.NewRouter().StrictSlash(true)
-	//cluster.New(opt.CtrlOptions).Register(router)
+	//$.type|private$.New(opt.CtrlOptions).Register(router)
 
 	return &server{
 		opt:    opt,
@@ -115,12 +111,14 @@ func New(opt Options) Server {
 `
 
 var serveHTTPFunc = `
+// ServeHTTP dispatches the handler registered in the matched route.
 func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.router.ServeHTTP(w, r)
 }
 `
 
 var listenAndServeFunc = `
+// ListenAndServe start a http server.
 func (s *server) ListenAndServe() error {
 	server := &http.Server{
 		Handler: s.router,

@@ -57,12 +57,14 @@ func (g *genControllerMeta) GenerateType(c *generator.Context, t *types.Type, w 
 }
 
 var typeOptionsStruct = `
+// Options contains the config by controller
 type Options struct {
-    //KubeClientset              kubernetes.Interface
+    KubeClientset              kubernetes.Interface
     Service                    service.Interface
 }
 `
 var typeControllerInterface = `
+// Controller helps start a router. 
 type Controller interface {
     Register(router *mux.Router)
 }
