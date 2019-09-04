@@ -4,7 +4,6 @@ import (
 	"io"
 	"path/filepath"
 
-	clientgentypes "k8s.io/code-generator/cmd/client-gen/types"
 	"k8s.io/gengo/generator"
 	"k8s.io/gengo/namer"
 	"k8s.io/gengo/types"
@@ -13,8 +12,6 @@ import (
 // genControllerMeta generates a package for a controller.
 type genControllerMeta struct {
 	generator.DefaultGen
-	groups              []clientgentypes.GroupVersions
-	groupGoNames        map[clientgentypes.GroupVersion]string
 	clientsetPackage    string
 	outputPackage       string
 	imports             namer.ImportTracker
@@ -43,6 +40,7 @@ func (g *genControllerMeta) Imports(c *generator.Context) (imports []string) {
 	imports = append(imports, g.imports.ImportLines()...)
 	imports = append(imports, filepath.Join(g.outputPackage, "server/service"))
 	imports = append(imports, "github.com/gorilla/mux")
+	imports = append(imports, "k8s.io/client-go/kubernetes")
 	return
 }
 
@@ -64,7 +62,7 @@ type Options struct {
 }
 `
 var typeControllerInterface = `
-// Controller helps start a router. 
+// Controller helps register to router. 
 type Controller interface {
     Register(router *mux.Router)
 }

@@ -174,8 +174,6 @@ func DefaultSourceTree() string {
 // If you don't need any non-default behavior, use as:
 // args.Default().Execute(...)
 func (g *GeneratorArgs) Execute(nameSystems namer.NameSystems, defaultSystem string, pkgs func(*generator.Context, *GeneratorArgs) generator.Packages) error {
-	fmt.Println("in execute")
-
 	if g.defaultCommandLineFlags {
 		g.AddFlags(pflag.CommandLine)
 		pflag.CommandLine.AddGoFlagSet(goflag.CommandLine)
@@ -186,17 +184,14 @@ func (g *GeneratorArgs) Execute(nameSystems namer.NameSystems, defaultSystem str
 	if err != nil {
 		return fmt.Errorf("Failed making a parser: %v", err)
 	}
-	fmt.Println("builder success")
 
 	c, err := generator.NewContext(b, nameSystems, defaultSystem)
 	if err != nil {
 		return fmt.Errorf("Failed making a context: %v", err)
 	}
-	fmt.Println("new context success")
 
 	c.Verify = g.VerifyOnly
 	packages := pkgs(c, g)
-	fmt.Println("new packages success")
 
 	if err := c.ExecutePackages(g.OutputBase, packages); err != nil {
 		return fmt.Errorf("Failed executing generator: %v", err)

@@ -24,6 +24,7 @@ func PackageForMiddleware(packagePath string, arguments *args.GeneratorArgs, boi
 					DefaultGen: generator.DefaultGen{
 						OptionalName: "auth",
 					},
+					outputPackage: arguments.OutputPackagePath,
 					inputPackages: arguments.InputDirs,
 					imports:       generator.NewImportTracker(),
 				},

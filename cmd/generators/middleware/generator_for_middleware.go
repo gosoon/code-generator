@@ -4,7 +4,6 @@ import (
 	"io"
 	"path/filepath"
 
-	clientgentypes "k8s.io/code-generator/cmd/client-gen/types"
 	"k8s.io/gengo/generator"
 	"k8s.io/gengo/namer"
 	"k8s.io/gengo/types"
@@ -14,16 +13,13 @@ import (
 // genMiddleware generates a package for a controller.
 type genMiddleware struct {
 	generator.DefaultGen
-	groups           []clientgentypes.GroupVersions
-	groupGoNames     map[clientgentypes.GroupVersion]string
 	clientsetPackage string
 	inputPackages    []string
 	outputPackage    string
 	imports          namer.ImportTracker
 	serviceGenerated bool
-
-	typeToGenerate *types.Type
-	objectMeta     *types.Type
+	typeToGenerate   *types.Type
+	objectMeta       *types.Type
 }
 
 var _ generator.Generator = &genMiddleware{}

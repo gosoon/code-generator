@@ -4,7 +4,6 @@ import (
 	"io"
 	"path/filepath"
 
-	clientgentypes "k8s.io/code-generator/cmd/client-gen/types"
 	"k8s.io/gengo/generator"
 	"k8s.io/gengo/namer"
 	"k8s.io/gengo/types"
@@ -14,16 +13,12 @@ import (
 // genTypesController generates a package for a controller.
 type genTypesController struct {
 	generator.DefaultGen
-	groups             []clientgentypes.GroupVersions
-	groupGoNames       map[clientgentypes.GroupVersion]string
 	clientsetPackage   string
 	inputPackages      []string
 	outputPackage      string
 	imports            namer.ImportTracker
 	clientsetGenerated bool
-
-	typeToGenerate *types.Type
-	objectMeta     *types.Type
+	typeToGenerate     *types.Type
 }
 
 var _ generator.Generator = &genTypesController{}
@@ -42,6 +37,7 @@ func (g *genTypesController) Filter(c *generator.Context, t *types.Type) bool {
 func (g *genTypesController) Imports(c *generator.Context) (imports []string) {
 	imports = append(imports, g.imports.ImportLines()...)
 	imports = append(imports, filepath.Join(g.outputPackage, "server/controller"))
+	// add input types
 	for _, pkg := range g.inputPackages {
 		imports = append(imports, pkg)
 	}
@@ -93,15 +89,15 @@ func (c *$.type|private$) Register(router *mux.Router) {
     
 	// get 
     router.Methods("GET").Path("/$.type|lowercaseSingular$/{name}").HandlerFunc(
-        (c.create$.type|public$))
+        (c.get$.type|public$))
 	
 	// update 
     router.Methods("PUT").Path("/$.type|lowercaseSingular$").HandlerFunc(
-        (c.create$.type|public$))
+        (c.update$.type|public$))
 	
 	// delete
     router.Methods("DELETE").Path("/$.type|lowercaseSingular$").HandlerFunc(
-        (c.create$.type|public$))
+        (c.delete$.type|public$))
 }
 `
 
@@ -114,7 +110,6 @@ func (c *$.type|private$) create$.type|public$(w http.ResponseWriter, r *http.Re
         controller.BadRequest(w, r, err)
         return
     }
-    name := mux.Vars(r)["name"]
 
     err = c.opt.Service.Create$.type|public$(r.Context(), $.type|private$Obj)
     if err != nil {
@@ -134,7 +129,7 @@ func (c *$.type|private$) get$.type|public$(w http.ResponseWriter, r *http.Reque
 		controller.BadRequest(w, r, err)
 		return
 	}
-	controller.OK(w, r, $.type|private$Obj)
+	controller.Response(w, r, http.StatusOK, $.type|private$Obj)
 }
 `
 
@@ -168,14 +163,14 @@ func (c *$.type|private$) delete$.type|public$(w http.ResponseWriter, r *http.Re
 	}
 
 	// get object
-	$.type|private$Obj,err = c.opt.Service.Get$.type|public$(r.Context(), $.type|private$Obj.Name)
+	$.type|private$,err := c.opt.Service.Get$.type|public$(r.Context(), $.type|private$Obj.Name)
 	if err != nil {
 		controller.BadRequest(w, r, err)
 		return
 	}
 
 	// delete object
-	err = c.opt.Service.Delete$.type|public$(r.Context(), $.type|private$Obj.Name)
+	err = c.opt.Service.Delete$.type|public$(r.Context(), $.type|private$.Name)
 	if err != nil {
 		controller.BadRequest(w, r, err)
 		return

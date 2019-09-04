@@ -9,13 +9,6 @@ import (
 var supportedTags = []string{
 	"genclient",
 	"genclient:verbs",
-	//"genclient:nonNamespaced",
-	//"genclient:noVerbs",
-	//"genclient:onlyVerbs",
-	//"genclient:skipVerbs",
-	//"genclient:noStatus",
-	//"genclient:readonly",
-	//"genclient:method",
 }
 
 // SupportedVerbs is a list of supported verbs for +onlyVerbs and +skipVerbs.
@@ -25,8 +18,6 @@ var SupportedVerbs = []string{
 	"delete",
 	"get",
 	"list",
-	//"updateStatus",
-	//"deleteCollection",
 	"watch",
 	"patch",
 }
@@ -275,7 +266,6 @@ func validateClientGenTags(values map[string][]string) error {
 		delete(values, k)
 	}
 	for key := range values {
-		fmt.Println("---------------->key genClientPrefix strings.TrimSuffix:", key, genClientPrefix, strings.TrimSuffix(genClientPrefix, ":"))
 		if strings.HasPrefix(key, strings.TrimSuffix(genClientPrefix, ":")) {
 			return errors.New("unknown tag detected: " + key)
 		}

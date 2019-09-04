@@ -59,15 +59,12 @@ func PackageForTypesController(packagePath string, arguments *args.GeneratorArgs
 				generator.DefaultGen{OptionalName: "doc"},
 				&genTypesController{
 					DefaultGen: generator.DefaultGen{
-						OptionalName: packageName, // filename : kubernetescluster.go
+						OptionalName: packageName,
 					},
-					inputPackages: arguments.InputDirs,
-					outputPackage: arguments.OutputPackagePath, //github.com/gosoon/code-generator
-					//groupVersion:   gv,                          // ecs  v1
-					//internalGVPkg:  internalGVPkg,               // github.com/gosoon/test/pkg/apis/ecs
-					typeToGenerate: t, // github.com/gosoon/test/pkg/apis/ecs/v1.KubernetesCluster
+					inputPackages:  arguments.InputDirs,
+					outputPackage:  arguments.OutputPackagePath,
+					typeToGenerate: t,
 					imports:        generator.NewImportTracker(),
-					//objectMeta:     objectMeta, // k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta
 				},
 			}
 			return generators

@@ -9,7 +9,7 @@ import (
 )
 
 // PackageForService xxx
-func PackageForService(packageName string, arguments *args.GeneratorArgs, boilerplate []byte) generator.Package {
+func PackageForService(packageName string, arguments *args.GeneratorArgs, types []*types.Type, boilerplate []byte) generator.Package {
 	return &generator.DefaultPackage{
 		PackageName: "service",
 		PackagePath: packageName,
@@ -27,8 +27,9 @@ func PackageForService(packageName string, arguments *args.GeneratorArgs, boiler
 					DefaultGen: generator.DefaultGen{
 						OptionalName: "interface",
 					},
-					inputPackages: arguments.InputDirs,
-					imports:       generator.NewImportTracker(),
+					typesToGenerate: types,
+					inputPackages:   arguments.InputDirs,
+					imports:         generator.NewImportTracker(),
 				},
 			}
 			return generators
@@ -56,8 +57,9 @@ func PackageForTypes(packagePath string, arguments *args.GeneratorArgs, t *types
 					DefaultGen: generator.DefaultGen{
 						OptionalName: packageName,
 					},
-					inputPackages: arguments.InputDirs,
-					imports:       generator.NewImportTracker(),
+					typeToGenerate: t,
+					inputPackages:  arguments.InputDirs,
+					imports:        generator.NewImportTracker(),
 				},
 			}
 			return generators

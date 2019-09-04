@@ -3,7 +3,6 @@ package controller
 import (
 	"io"
 
-	clientgentypes "k8s.io/code-generator/cmd/client-gen/types"
 	"k8s.io/gengo/generator"
 	"k8s.io/gengo/namer"
 	"k8s.io/gengo/types"
@@ -13,8 +12,6 @@ import (
 // genControllerUtils generates a package for a controller.
 type genControllerUtils struct {
 	generator.DefaultGen
-	groups              []clientgentypes.GroupVersions
-	groupGoNames        map[clientgentypes.GroupVersion]string
 	clientsetPackage    string
 	outputPackage       string
 	imports             namer.ImportTracker

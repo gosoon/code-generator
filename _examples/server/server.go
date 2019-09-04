@@ -17,11 +17,13 @@ package server
 
 import (
 	"net/http"
-	ctrl "server/controller"
-	"server/service"
 	"time"
 
 	"github.com/gorilla/mux"
+	ctrl "github.com/gosoon/code-generator/server/controller"
+	"github.com/gosoon/code-generator/server/controller/namespace"
+	"github.com/gosoon/code-generator/server/controller/secret"
+	"github.com/gosoon/code-generator/server/service"
 )
 
 // Server helps start a http server.
@@ -46,14 +48,14 @@ type server struct {
 func New(opt Options) Server {
 	// init service
 	options := &service.Options{
-		//KubernetesClusterClientset: opt.CtrlOptions.KubernetesClusterClientset,
 		KubeClientset: opt.CtrlOptions.KubeClientset,
 	}
 
 	opt.CtrlOptions.Service = service.New(options)
 
 	router := mux.NewRouter().StrictSlash(true)
-	//namespace.New(opt.CtrlOptions).Register(router)
+	namespace.New(opt.CtrlOptions).Register(router)
+	secret.New(opt.CtrlOptions).Register(router)
 
 	return &server{
 		opt:    opt,

@@ -13,21 +13,5 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package controller
-
-import (
-	"github.com/gorilla/mux"
-	"github.com/gosoon/code-generator/server/service"
-	"k8s.io/client-go/kubernetes"
-)
-
-// Options contains the config by controller
-type Options struct {
-	KubeClientset kubernetes.Interface
-	Service       service.Interface
-}
-
-// Controller helps register to router.
-type Controller interface {
-	Register(router *mux.Router)
-}
+// This package has the automatically generated type controller.
+package secret

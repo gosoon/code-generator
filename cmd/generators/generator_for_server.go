@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"io"
 	"path/filepath"
+	"strings"
 
-	clientgentypes "k8s.io/code-generator/cmd/client-gen/types"
 	"k8s.io/gengo/generator"
 	"k8s.io/gengo/namer"
 	"k8s.io/gengo/types"
@@ -15,14 +15,11 @@ import (
 // genServer generates a package for a controller.
 type genServer struct {
 	generator.DefaultGen
-	groups              []clientgentypes.GroupVersions
-	groupGoNames        map[clientgentypes.GroupVersion]string
 	clientsetPackage    string
 	outputPackage       string
 	imports             namer.ImportTracker
 	controllerGenerated bool
-	typeToGenerate      *types.Type
-	objectMeta          *types.Type
+	typesToGenerate     []*types.Type
 }
 
 var _ generator.Generator = &genServer{}
@@ -45,6 +42,10 @@ func (g *genServer) Imports(c *generator.Context) (imports []string) {
 	imports = append(imports, filepath.Join(g.outputPackage, "server/service"))
 	imports = append(imports, fmt.Sprintf("ctrl \"%v\"", filepath.Join(g.outputPackage, "server/controller")))
 	imports = append(imports, "github.com/gorilla/mux")
+
+	for _, t := range g.typesToGenerate {
+		imports = append(imports, filepath.Join(g.outputPackage, "server/controller", strings.ToLower(t.Name.Name)))
+	}
 	return
 }
 
@@ -53,7 +54,7 @@ func (g *genServer) GenerateType(c *generator.Context, t *types.Type, w io.Write
 
 	klog.Infof("processing type %v", t)
 	m := map[string]interface{}{
-		"type": t,
+		"types": g.typesToGenerate,
 	}
 
 	sw.Do(typeServerInterface, m)
@@ -94,14 +95,14 @@ var serverNewFunc = `
 func New(opt Options) Server {
 	// init service
 	options := &service.Options{
-		//KubernetesClusterClientset: opt.CtrlOptions.KubernetesClusterClientset,
-		KubeClientset:              opt.CtrlOptions.KubeClientset,
+		KubeClientset:  opt.CtrlOptions.KubeClientset,
 	}
 
 	opt.CtrlOptions.Service = service.New(options)
 
 	router := mux.NewRouter().StrictSlash(true)
-	//$.type|private$.New(opt.CtrlOptions).Register(router)
+	$range .types$ $.|private$.New(opt.CtrlOptions).Register(router)
+	$end$
 
 	return &server{
 		opt:    opt,

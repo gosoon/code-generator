@@ -3,7 +3,6 @@ package service
 import (
 	"io"
 
-	clientgentypes "k8s.io/code-generator/cmd/client-gen/types"
 	"k8s.io/gengo/generator"
 	"k8s.io/gengo/namer"
 	"k8s.io/gengo/types"
@@ -13,16 +12,12 @@ import (
 // genServiceInterface generates a package for a controller.
 type genServiceInterface struct {
 	generator.DefaultGen
-	groups           []clientgentypes.GroupVersions
-	groupGoNames     map[clientgentypes.GroupVersion]string
 	clientsetPackage string
 	inputPackages    []string
 	outputPackage    string
 	imports          namer.ImportTracker
 	serviceGenerated bool
-
-	typeToGenerate *types.Type
-	objectMeta     *types.Type
+	typesToGenerate  []*types.Type
 }
 
 var _ generator.Generator = &genServiceInterface{}
@@ -42,6 +37,9 @@ func (g *genServiceInterface) Filter(c *generator.Context, t *types.Type) bool {
 
 func (g *genServiceInterface) Imports(c *generator.Context) (imports []string) {
 	imports = append(imports, g.imports.ImportLines()...)
+	imports = append(imports, "k8s.io/client-go/kubernetes")
+	imports = append(imports, "apiv1 \"k8s.io/api/core/v1\"")
+
 	for _, pkg := range g.inputPackages {
 		imports = append(imports, pkg)
 	}
@@ -53,7 +51,7 @@ func (g *genServiceInterface) GenerateType(c *generator.Context, t *types.Type, 
 
 	klog.Infof("processing type %v", t)
 	m := map[string]interface{}{
-		"type": t,
+		"types": g.typesToGenerate,
 	}
 
 	sw.Do(typeOptionsStruct, m)
@@ -87,9 +85,11 @@ func New(opt *Options) Interface {
 var serviceInterfaceTmpl = `
 // Interface is definition service all method.
 type Interface interface {
-	Create$.type|public$(ctx context.Context, $.type|private$Obj *types.$.type|public$) error
-	Get$.type|public$(ctx context.Context, name string) error
-	Update$.type|public$(ctx context.Context, $.type|private$Obj *types.$.type|public$) error
-	Delete$.type|public$(ctx context.Context, name string) error
+$range .types$
+	Create$.|public$(ctx context.Context, $.|private$Obj *types.$.|public$) error
+	Get$.|public$(ctx context.Context, name string) (*apiv1.$.|public$, error)
+	Update$.|public$(ctx context.Context, $.|private$Obj *types.$.|public$) error
+	Delete$.|public$(ctx context.Context, name string) error
+$end$
 }
 `

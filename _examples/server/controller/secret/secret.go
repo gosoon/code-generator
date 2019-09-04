@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package namespace
+package secret
 
 import (
 	"encoding/json"
@@ -24,47 +24,47 @@ import (
 	"github.com/gosoon/test/pkg/types"
 )
 
-// namespace implements the controller interface.
-type namespace struct {
+// secret implements the controller interface.
+type secret struct {
 	opt *controller.Options
 }
 
-// New is create a namespace object.
+// New is create a secret object.
 func New(opt *controller.Options) controller.Controller {
-	return &namespace{opt: opt}
+	return &secret{opt: opt}
 }
 
 // Register is register the routes to router
-func (c *namespace) Register(router *mux.Router) {
+func (c *secret) Register(router *mux.Router) {
 	router = router.PathPrefix("/api/v1").Subrouter()
 
 	// create
-	router.Methods("POST").Path("/namespace").HandlerFunc(
-		(c.createNamespace))
+	router.Methods("POST").Path("/secret").HandlerFunc(
+		(c.createSecret))
 
 	// get
-	router.Methods("GET").Path("/namespace/{name}").HandlerFunc(
-		(c.getNamespace))
+	router.Methods("GET").Path("/secret/{name}").HandlerFunc(
+		(c.getSecret))
 
 	// update
-	router.Methods("PUT").Path("/namespace").HandlerFunc(
-		(c.updateNamespace))
+	router.Methods("PUT").Path("/secret").HandlerFunc(
+		(c.updateSecret))
 
 	// delete
-	router.Methods("DELETE").Path("/namespace").HandlerFunc(
-		(c.deleteNamespace))
+	router.Methods("DELETE").Path("/secret").HandlerFunc(
+		(c.deleteSecret))
 }
 
-// createNamespace
-func (c *namespace) createNamespace(w http.ResponseWriter, r *http.Request) {
-	namespaceObj := &types.Namespace{}
-	err := json.NewDecoder(r.Body).Decode(namespaceObj)
+// createSecret
+func (c *secret) createSecret(w http.ResponseWriter, r *http.Request) {
+	secretObj := &types.Secret{}
+	err := json.NewDecoder(r.Body).Decode(secretObj)
 	if err != nil {
 		controller.BadRequest(w, r, err)
 		return
 	}
 
-	err = c.opt.Service.CreateNamespace(r.Context(), namespaceObj)
+	err = c.opt.Service.CreateSecret(r.Context(), secretObj)
 	if err != nil {
 		controller.BadRequest(w, r, err)
 		return
@@ -72,27 +72,27 @@ func (c *namespace) createNamespace(w http.ResponseWriter, r *http.Request) {
 	controller.OK(w, r, "success")
 }
 
-// getNamespace
-func (c *namespace) getNamespace(w http.ResponseWriter, r *http.Request) {
+// getSecret
+func (c *secret) getSecret(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
-	namespaceObj, err := c.opt.Service.GetNamespace(r.Context(), name)
+	secretObj, err := c.opt.Service.GetSecret(r.Context(), name)
 	if err != nil {
 		controller.BadRequest(w, r, err)
 		return
 	}
-	controller.Response(w, r, http.StatusOK, namespaceObj)
+	controller.Response(w, r, http.StatusOK, secretObj)
 }
 
-// updateNamespace
-func (c *namespace) updateNamespace(w http.ResponseWriter, r *http.Request) {
-	namespaceObj := &types.Namespace{}
-	err := json.NewDecoder(r.Body).Decode(namespaceObj)
+// updateSecret
+func (c *secret) updateSecret(w http.ResponseWriter, r *http.Request) {
+	secretObj := &types.Secret{}
+	err := json.NewDecoder(r.Body).Decode(secretObj)
 	if err != nil {
 		controller.BadRequest(w, r, err)
 		return
 	}
 
-	err = c.opt.Service.UpdateNamespace(r.Context(), namespaceObj)
+	err = c.opt.Service.UpdateSecret(r.Context(), secretObj)
 	if err != nil {
 		controller.BadRequest(w, r, err)
 		return
@@ -100,24 +100,24 @@ func (c *namespace) updateNamespace(w http.ResponseWriter, r *http.Request) {
 	controller.OK(w, r, "success")
 }
 
-// deleteNamespace
-func (c *namespace) deleteNamespace(w http.ResponseWriter, r *http.Request) {
-	namespaceObj := &types.Namespace{}
-	err := json.NewDecoder(r.Body).Decode(namespaceObj)
+// deleteSecret
+func (c *secret) deleteSecret(w http.ResponseWriter, r *http.Request) {
+	secretObj := &types.Secret{}
+	err := json.NewDecoder(r.Body).Decode(secretObj)
 	if err != nil {
 		controller.BadRequest(w, r, err)
 		return
 	}
 
 	// get object
-	namespace, err := c.opt.Service.GetNamespace(r.Context(), namespaceObj.Name)
+	secret, err := c.opt.Service.GetSecret(r.Context(), secretObj.Name)
 	if err != nil {
 		controller.BadRequest(w, r, err)
 		return
 	}
 
 	// delete object
-	err = c.opt.Service.DeleteNamespace(r.Context(), namespace.Name)
+	err = c.opt.Service.DeleteSecret(r.Context(), secret.Name)
 	if err != nil {
 		controller.BadRequest(w, r, err)
 		return

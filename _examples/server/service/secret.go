@@ -24,76 +24,76 @@ import (
 	"k8s.io/klog"
 )
 
-// CreateNamespace xxx
+// CreateSecret xxx
 // TODO(user): Modify this function to implement your logic.This example use namespace.
-func (s *service) CreateNamespace(ctx context.Context, namespaceObj *types.Namespace) error {
+func (s *service) CreateSecret(ctx context.Context, secretObj *types.Secret) error {
 	clientset := s.opt.KubeClientset
-	namespace := &apiv1.Namespace{
+	secret := &apiv1.Secret{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "v1",
-			Kind:       "Namespace",
+			Kind:       "Secret",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name: namespaceObj.Name,
+			Name: secretObj.Name,
 		},
 	}
 
-	_, err := clientset.CoreV1().Namespaces().Create(namespace)
+	_, err := clientset.CoreV1().Secrets().Create(namespace)
 	if err != nil {
-		klog.Errorf("create namespace failed with:%v", err)
+		klog.Errorf("create secret failed with:%v", err)
 		return err
 	}
 	return nil
 }
 
-// GetNamespace xxx
+// GetSecret xxx
 // TODO(user): Modify this function to implement your logic.This example use namespace.
-func (s *service) GetNamespace(ctx context.Context, name string) (*apiv1.Namespace, error) {
+func (s *service) GetSecret(ctx context.Context, name string) (*apiv1.Secret, error) {
 	clientset := s.opt.KubeClientset
 
-	namespace, err := clientset.CoreV1().Namespaces().Get(name, metav1.GetOptions{})
+	secret, err := clientset.CoreV1().Secrets().Get(name, metav1.GetOptions{})
 	if err != nil {
-		klog.Errorf("get namespace %v failed with:%v", name, err)
+		klog.Errorf("get secret %v failed with:%v", name, err)
 		return nil, err
 	}
 
-	return namespace, nil
+	return secret, nil
 }
 
-// UpdateNamespace xxx
+// UpdateSecret xxx
 // TODO(user): Modify this function to implement your logic.This example use namespace.
-func (s *service) UpdateNamespace(ctx context.Context, namespaceObj *types.Namespace) error {
+func (s *service) UpdateSecret(ctx context.Context, secretObj *types.Secret) error {
 	clientset := s.opt.KubeClientset
 
 	var err error
-	namespace, err := clientset.CoreV1().Namespaces().Get(namespaceObj.Name, metav1.GetOptions{})
+	secret, err := clientset.CoreV1().Secrets().Get(secretObj.Name, metav1.GetOptions{})
 	if err != nil {
-		klog.Errorf("get namespace %v failed with:%v", namespaceObj.Name, err)
+		klog.Errorf("get secret %v failed with:%v", secretObj.Name, err)
 		return err
 	}
 
-	namespace, err = clientset.CoreV1().Namespaces().Update(namespace)
+	secret, err = clientset.CoreV1().Secrets().Update(secret)
 	if err != nil {
-		klog.Errorf("update namespace failed with:%v", err)
+		klog.Errorf("update secret failed with:%v", err)
 		return err
 	}
 	return nil
 }
 
-// DeleteNamespace xxx
+// DeleteSecret xxx
 // TODO(user): Modify this function to implement your logic.This example use namespace.
-func (s *service) DeleteNamespace(ctx context.Context, name string) error {
+func (s *service) DeleteSecret(ctx context.Context, name string) error {
 	clientset := s.opt.KubeClientset
 
-	_, err := clientset.CoreV1().Namespaces().Get(name, metav1.GetOptions{})
+	_, err := clientset.CoreV1().Secrets().Get(name, metav1.GetOptions{})
 	if err != nil {
-		klog.Errorf("get namespace %v failed with:%v", name, err)
+		klog.Errorf("get secret %v failed with:%v", name, err)
 		return err
 	}
 
-	err = clientset.CoreV1().Namespaces().Delete(name, &metav1.DeleteOptions{})
+	err = clientset.CoreV1().Secrets().Delete(name, &metav1.DeleteOptions{})
 	if err != nil {
-		klog.Errorf("delete namespaceObj %v failed with:%v", name, err)
+		klog.Errorf("delete secretObj %v failed with:%v", name, err)
 		return err
 	}
 	return nil

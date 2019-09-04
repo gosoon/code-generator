@@ -3,7 +3,6 @@ package service
 import (
 	"io"
 
-	clientgentypes "k8s.io/code-generator/cmd/client-gen/types"
 	"k8s.io/gengo/generator"
 	"k8s.io/gengo/namer"
 	"k8s.io/gengo/types"
@@ -13,16 +12,12 @@ import (
 // genTypesService generates a package for a controller.
 type genTypesService struct {
 	generator.DefaultGen
-	groups           []clientgentypes.GroupVersions
-	groupGoNames     map[clientgentypes.GroupVersion]string
 	clientsetPackage string
 	inputPackages    []string
 	outputPackage    string
 	imports          namer.ImportTracker
 	serviceGenerated bool
-
-	typeToGenerate *types.Type
-	objectMeta     *types.Type
+	typeToGenerate   *types.Type
 }
 
 var _ generator.Generator = &genTypesService{}
@@ -42,15 +37,22 @@ func (g *genTypesService) Filter(c *generator.Context, t *types.Type) bool {
 
 func (g *genTypesService) Imports(c *generator.Context) (imports []string) {
 	imports = append(imports, g.imports.ImportLines()...)
+	imports = append(imports, "k8s.io/klog")
+	imports = append(imports, "apiv1 \"k8s.io/api/core/v1\"")
+	imports = append(imports, "metav1 \"k8s.io/apimachinery/pkg/apis/meta/v1\"")
+
+	for _, pkg := range g.inputPackages {
+		imports = append(imports, pkg)
+	}
 	return
 }
 
 func (g *genTypesService) GenerateType(c *generator.Context, t *types.Type, w io.Writer) error {
 	sw := generator.NewSnippetWriter(w, c, "$", "$")
 
-	klog.Infof("processing type %v", t)
+	klog.Infof("processing type %v", g.typeToGenerate)
 	m := map[string]interface{}{
-		"type": t,
+		"type": g.typeToGenerate,
 	}
 
 	sw.Do(createObjectService, m)
@@ -62,78 +64,80 @@ func (g *genTypesService) GenerateType(c *generator.Context, t *types.Type, w io
 
 var createObjectService = `
 // Create$.type|public$ xxx
-func (s *service) Create$.type|public$(tenant *types.Tenant) error {
+// TODO(user): Modify this function to implement your logic.This example use namespace.
+func (s *service) Create$.type|public$(ctx context.Context, $.type|private$Obj *types.$.type|public$) error {
     clientset := s.opt.KubeClientset
-    namespace := &apiv1.Namespace{
+    $.type|private$ := &apiv1.$.type|public${
         TypeMeta: metav1.TypeMeta{
             APIVersion: "v1",
-            Kind:       "Namespace",
+            Kind:       "$.type|public$",
         },
         ObjectMeta: metav1.ObjectMeta{
-            Name: tenant.Name,
+            Name: $.type|private$Obj.Name,
         },
     }
 
-   /*
-    _, err := clientset.CoreV1().Namespaces().Create(namespace)
+    _, err := clientset.CoreV1().$.type|publicPlural$().Create(namespace)
     if err != nil {
-        clog.Errorf("create tenant failed with:%v", err)
+        klog.Errorf("create $.type|private$ failed with:%v", err)
         return err
-    } */
+    } 
     return nil
 }
 `
 var getObjectService = `
 // Get$.type|public$ xxx
-func (s *service) Get$.type|public$(name string) (*apiv1.Namespace, error) {
-    clientset := s.opt.KubeClient
+// TODO(user): Modify this function to implement your logic.This example use namespace.
+func (s *service) Get$.type|public$(ctx context.Context, name string) (*apiv1.$.type|public$, error) {
+    clientset := s.opt.KubeClientset
 
-    namespace, err := clientset.CoreV1().Namespaces().Get(name, metav1.GetOptions{})
+    $.type|private$, err := clientset.CoreV1().$.type|publicPlural$().Get(name, metav1.GetOptions{})
     if err != nil {
-        clog.Errorf("get tenant %v failed with:%v", name, err)
+        klog.Errorf("get $.type|private$ %v failed with:%v", name, err)
         return nil, err
     }
 
-    if _, existed := namespace.Annotations[enum.TenantAnnotation]; !existed {
-        return nil, fmt.Errorf("not found tenant %v", name)
-    }
-    return namespace, nil
+    return $.type|private$, nil
 }
 `
 
 var updateObjectService = `
-func (s *service) Update$.type|public$(tenant *types.Tenant) (*apiv1.Namespace, error) {
-    clientset := s.opt.KubeClient
+// Update$.type|public$ xxx
+// TODO(user): Modify this function to implement your logic.This example use namespace. 
+func (s *service) Update$.type|public$(ctx context.Context, $.type|private$Obj *types.$.type|public$) error {
+    clientset := s.opt.KubeClientset
 
-    namespace, err := clientset.CoreV1().Namespaces().Get(tenant.Name, metav1.GetOptions{})
+	var err error
+	$.type|private$, err := clientset.CoreV1().$.type|publicPlural$().Get($.type|private$Obj.Name, metav1.GetOptions{})
     if err != nil {
-        clog.Errorf("get tenant %v failed with:%v", name, err)
+        klog.Errorf("get $.type|private$ %v failed with:%v", $.type|private$Obj.Name, err)
         return err
     }
 
-    curNamespace, err := clientset.CoreV1().Namespaces().Update(namespace)
+    $.type|private$, err = clientset.CoreV1().$.type|publicPlural$().Update($.type|private$)
     if err != nil {
-        clog.Errorf("update tenant failed with:%v", err)
-        return nil, err
+        klog.Errorf("update $.type|private$ failed with:%v", err)
+        return err
     }
-    return curNamespace, nil
+    return nil
 }
 `
 
 var deleteObjectService = `
-func (s *service) Delete$.type|public$(name string) error {
-    clientset := s.opt.KubeClient
+// Delete$.type|public$ xxx
+// TODO(user): Modify this function to implement your logic.This example use namespace.
+func (s *service) Delete$.type|public$(ctx context.Context, name string) error {
+    clientset := s.opt.KubeClientset
 
-    namespace, err := clientset.CoreV1().Namespaces().Get(name, metav1.GetOptions{})
+    _, err := clientset.CoreV1().$.type|publicPlural$().Get(name, metav1.GetOptions{})
     if err != nil {
-        clog.Errorf("get tenant %v failed with:%v", name, err)
+        klog.Errorf("get $.type|private$ %v failed with:%v", name, err)
         return err
     }
 
-    // Delete(name string, options *metav1.DeleteOptions) error
-    err = clientset.CoreV1().Namespaces().Delete(name, &metav1.DeleteOptions{})
+    err = clientset.CoreV1().$.type|publicPlural$().Delete(name, &metav1.DeleteOptions{})
     if err != nil {
-        clog.Errorf("delete tenant %v failed with:%v", name, err)
+        klog.Errorf("delete $.type|private$Obj %v failed with:%v", name, err)
         return err
     }
     return nil

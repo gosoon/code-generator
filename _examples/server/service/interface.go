@@ -19,6 +19,7 @@ import (
 	"context"
 
 	"github.com/gosoon/test/pkg/types"
+	apiv1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 )
 
@@ -40,7 +41,12 @@ func New(opt *Options) Interface {
 // Interface is definition service all method.
 type Interface interface {
 	CreateNamespace(ctx context.Context, namespaceObj *types.Namespace) error
-	GetNamespace(ctx context.Context, name string) error
+	GetNamespace(ctx context.Context, name string) (*apiv1.Namespace, error)
 	UpdateNamespace(ctx context.Context, namespaceObj *types.Namespace) error
 	DeleteNamespace(ctx context.Context, name string) error
+
+	CreateSecret(ctx context.Context, secretObj *types.Secret) error
+	GetSecret(ctx context.Context, name string) (*apiv1.Secret, error)
+	UpdateSecret(ctx context.Context, secretObj *types.Secret) error
+	DeleteSecret(ctx context.Context, name string) error
 }
