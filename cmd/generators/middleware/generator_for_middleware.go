@@ -71,9 +71,12 @@ func (g *genMiddleware) GenerateType(c *generator.Context, t *types.Type, w io.W
 }
 
 var authenticateTmpl = `
-// AuthenticateMW will create a authenticate middleware
+// Authenticate will create a authenticate middleware
+// TODO(user): Modify this function to implement your logic.
 func Authenticate(next http.Handler) http.HandlerFunc {
     return func(w http.ResponseWriter, r *http.Request) {
+		/*
+		// This is a example.
         token := r.Header.Get("Authorization")
         if len(token) != 0 {
             bearerValue := strings.Split(token, " ")[1]
@@ -83,6 +86,8 @@ func Authenticate(next http.Handler) http.HandlerFunc {
             }
         }
         controller.Unauthorized(w, r, fmt.Sprintf("Authenticate failed,plz check your token."))
-    }
+		*/
+		next.ServeHTTP(w, r)
+	}
 }
 `

@@ -101,19 +101,19 @@ func (c *$.type|private$) Register(router *mux.Router) {
 
     // create
     router.Methods("POST").Path("/$.type|lowercaseSingular$").HandlerFunc(
-        (c.create$.type|public$))
+        middleware.Authenticate(http.HandlerFunc((c.create$.type|public$))))
     
 	// get 
     router.Methods("GET").Path("/$.type|lowercaseSingular$/{name}").HandlerFunc(
-        (c.get$.type|public$))
+        middleware.Authenticate(http.HandlerFunc((c.get$.type|public$))))
 	
 	// update 
     router.Methods("PUT").Path("/$.type|lowercaseSingular$").HandlerFunc(
-        (c.update$.type|public$))
+        middleware.Authenticate(http.HandlerFunc((c.update$.type|public$))))
 	
 	// delete
     router.Methods("DELETE").Path("/$.type|lowercaseSingular$").HandlerFunc(
-        (c.delete$.type|public$))
+        middleware.Authenticate(http.HandlerFunc((c.delete$.type|public$))))
 }
 `
 

@@ -15,26 +15,24 @@
  */
 package middleware
 
-import (
-	"fmt"
-	"net/http"
-	"strings"
+import "net/http"
 
-	"github.com/gosoon/code-generator/server/controller"
-	"github.com/spf13/viper"
-)
-
-// AuthenticateMW will create a authenticate middleware
+// Authenticate will create a authenticate middleware
+// TODO(user): Modify this function to implement your logic.
 func Authenticate(next http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		token := r.Header.Get("Authorization")
-		if len(token) != 0 {
-			bearerValue := strings.Split(token, " ")[1]
-			// token in config
-			if bearerValue == viper.GetString(config.token) {
-				next.ServeHTTP(w, r)
-			}
-		}
-		controller.Unauthorized(w, r, fmt.Sprintf("Authenticate failed,plz check your token."))
+		/*
+					// This is a example.
+			        token := r.Header.Get("Authorization")
+			        if len(token) != 0 {
+			            bearerValue := strings.Split(token, " ")[1]
+			            // token in config
+			            if bearerValue == viper.GetString(config.token) {
+			                next.ServeHTTP(w, r)
+			            }
+			        }
+			        controller.Unauthorized(w, r, fmt.Sprintf("Authenticate failed,plz check your token."))
+		*/
+		next.ServeHTTP(w, r)
 	}
 }

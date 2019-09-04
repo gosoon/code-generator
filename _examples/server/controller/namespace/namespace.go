@@ -20,8 +20,9 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/gosoon/code-generator/server/controller"
-	"github.com/gosoon/test/pkg/types"
+	"github.com/gosoon/code-generator/_examples/server/controller"
+	"github.com/gosoon/code-generator/_examples/types/v1"
+	"github.com/gosoon/test/server/middleware"
 )
 
 // namespace implements the controller interface.
@@ -40,19 +41,19 @@ func (c *namespace) Register(router *mux.Router) {
 
 	// create
 	router.Methods("POST").Path("/namespace").HandlerFunc(
-		(c.createNamespace))
+		middleware.Authenticate(http.HandlerFunc((c.createNamespace))))
 
 	// get
 	router.Methods("GET").Path("/namespace/{name}").HandlerFunc(
-		(c.getNamespace))
+		middleware.Authenticate(http.HandlerFunc((c.getNamespace))))
 
 	// update
 	router.Methods("PUT").Path("/namespace").HandlerFunc(
-		(c.updateNamespace))
+		middleware.Authenticate(http.HandlerFunc((c.updateNamespace))))
 
 	// delete
 	router.Methods("DELETE").Path("/namespace").HandlerFunc(
-		(c.deleteNamespace))
+		middleware.Authenticate(http.HandlerFunc((c.deleteNamespace))))
 }
 
 // createNamespace

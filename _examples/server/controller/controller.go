@@ -17,7 +17,7 @@ package controller
 
 import (
 	"github.com/gorilla/mux"
-	"github.com/gosoon/code-generator/server/service"
+	"github.com/gosoon/code-generator/_examples/server/service"
 	"k8s.io/client-go/kubernetes"
 )
 

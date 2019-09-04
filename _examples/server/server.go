@@ -20,10 +20,9 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	ctrl "github.com/gosoon/code-generator/server/controller"
-	"github.com/gosoon/code-generator/server/controller/namespace"
-	"github.com/gosoon/code-generator/server/controller/secret"
-	"github.com/gosoon/code-generator/server/service"
+	ctrl "github.com/gosoon/code-generator/_examples/server/controller"
+	"github.com/gosoon/code-generator/_examples/server/controller/namespace"
+	"github.com/gosoon/code-generator/_examples/server/service"
 )
 
 // Server helps start a http server.
@@ -55,7 +54,6 @@ func New(opt Options) Server {
 
 	router := mux.NewRouter().StrictSlash(true)
 	namespace.New(opt.CtrlOptions).Register(router)
-	secret.New(opt.CtrlOptions).Register(router)
 
 	return &server{
 		opt:    opt,

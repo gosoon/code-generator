@@ -125,7 +125,7 @@ func Packages(context *generator.Context, arguments *args.GeneratorArgs) generat
 
 		// middleware
 		packageList = append(packageList, middleware.PackageForMiddleware(middlewarePackagePath, arguments, boilerplate))
-		// 为每个 types 生成一个目录以及对应的 CRUD 方法
+		// generate CRUD method for echo type
 		for _, t := range typesToGenerate {
 			packageList = append(packageList, controller.PackageForTypesController(packagePath,
 				arguments, t, boilerplate))
