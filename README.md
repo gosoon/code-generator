@@ -139,6 +139,7 @@ $ curl -s 127.0.0.1:8080/api/v1/namespace/default | jq .
 }
 ```
 
+Example all code in [_examples](https://github.com/gosoon/code-generator/tree/master/_examples) dir.
 
 Now automatic generation of CRUD code is the most basic feature,more functions please look forward to, welcome your attention.
 
